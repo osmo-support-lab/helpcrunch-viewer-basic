@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', init);
 async function init() {
     getAppInfo();
     getTicketsForDepartment();
-    setInterval(getTicketsForDepartment, 60000);
+    setInterval(getTicketsForDepartment, 300000);
 }
 
 async function getAppInfo() {
@@ -83,7 +83,7 @@ async function getTicketsForDepartment() {
             divTicketList.innerHTML = data.data
                 .sort((a, b) => b.lastCustomerMessageAt - a.lastCustomerMessageAt) // Sort tickets by last message time (newest to oldest)
                 .map(ticket => {
-                    return `<div class="ticket-preview" onclick="viewTicket(${ticket.id},'${ticket.customer?.name}')">
+                    return `<div class="ticket-preview" data-ticket-id="${ticket.id}" onclick="viewTicket(${ticket.id},'${ticket.customer?.name}')">
                     <div class="status-color-bar" data-status=${ticket.status}></div>
                     <div class="ticket-info">
                         <div class="ticket-header">
@@ -172,6 +172,15 @@ async function getDepartments() {
 
 
 function viewTicket(ticketId, customerName = "User") {
+
+    // remove all other active (hightlighted) ticket classes
+    const ticketPreviews = document.getElementsByClassName('ticket-preview');
+    Array.from(ticketPreviews).forEach(ticketPreview => {
+        ticketPreview.classList.remove('active');
+    });
+    // set the ticket preview to active by the data-ticket-id attribute
+    document.querySelector(`.ticket-preview[data-ticket-id="${ticketId}"]`).classList.add('active');
+
 
     loadingMaskFetch(`/chats/${ticketId}/messages`, {}, 'ticket-messages-loader')
         .then(response => response.json())

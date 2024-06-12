@@ -132,6 +132,10 @@ button:active {
   background-color: #d9d9d9;
 }
 
+.ticket-preview.active {
+  background-color: #cccccc;
+}
+
 .ticket-preview .status-color-bar {
   width: 5px;
   border-radius: 5px;
@@ -268,7 +272,7 @@ button:active {
   height: 100%;
   background-image: linear-gradient(to right, #cccccc, #f2f2f2);
   background-size: 200% 100%;
-  animation: gradientAnimation 0.5s linear infinite;
+  animation: gradientAnimation 0.5s linear infinite alternate;
 }
 
 @keyframes gradientAnimation {
