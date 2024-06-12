@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ISG - Helpcrunch Tickets</title>
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- <button id="btnGetDepartments">Get Departments</button>
+    <br />
+    <label for="selectDepartments">Departments</label>
+    <select id="selectDepartments" style="width: 150px"></select>
+    <div id="divDepartmentsResponse"></div>
+    <br />
+    <br />
+    <button id="btnGetTickets">Get Tickets by Department</button>
+    <button id="btnGetSquidTickets">Get Squid Tickets</button>
+  -->
+    <div class="main-container">
+      <!-- Content for the top panel goes here -->
+      <div class="top-panel">
+        <div class="logo"></div>
+        <div class="header-bar">
+          <div class="title">Helpcrunch Tickets</div>
+          <div class="client">
+            Client: <span class="department-name"></span>
+          </div>
+          <button id="btnRefreshTickets">Refresh Tickets</button>
+          <div class="refresh-info">(refreshes every 1 minute)</div>
+        </div>
+      </div>
+      <div class="main-panel">
+        <!-- Content for the main panel goes here -->
+
+        <div id="ticket-list-loader">
+          <div class="loader">Loading...</div>
+          <div id="divTicketList" class="ticket-list"></div>
+          <!-- List of tickets goes here -->
+        </div>
+
+        <div id="ticket-messages-loader">
+          <div class="loader">Loading...</div>
+          <div id="divTicketMessages" class="ticket-messages">
+            <!-- Selected ticket messages goes here -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="index.js" type="text/javascript"></script>
+  </body>
+</html>
