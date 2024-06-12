@@ -19,6 +19,7 @@ document.getElementById('btnRefreshTickets').addEventListener('click', async () 
 // document.getElementById('btnGetDepartments').addEventListener('click', () => {
 //     getDepartments();
 // });
+// document.getElementById("statusSelector").addEventListener("change", statusSelectorCallback);
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -186,14 +187,14 @@ function viewTicket(ticketId, customerName = "User") {
         .then(response => response.json())
         .then(data => {
             // Display the messages in the divTicketMessages
-            console.log(data);
             document.getElementById('divTicketMessages').innerHTML = data.data.map(message => {
+                console.log(message);
                 return `<div class="message">
-                            <div class="message-text">${message.text}</div>
                             <div class="message-info">
-                                <div class="message-sender">${message.from === 'agent' ? (message?.agent?.name === undefined ? "System message" : message?.agent?.name) : customerName}</div>
+                                <div class="message-sender ${message.from === 'agent' ? 'agent' : ''}">${message.from === 'agent' ? (message?.agent?.name === undefined ? "System message" : message?.agent?.name) : customerName}</div>
                                 <div class="message-timestamp">${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}</div>
                             </div>
+                            <div class="message-text">${message.text}</div>
                         </div>`;
             }).join('');
         })
@@ -201,4 +202,8 @@ function viewTicket(ticketId, customerName = "User") {
             console.error('Error:', error);
         });
 
+}
+
+function statusSelectorCallback(e) {
+    console.log(e)
 }
