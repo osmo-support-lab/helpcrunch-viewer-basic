@@ -281,6 +281,14 @@ button:active {
   text-align: right;
 }
 
+.message-sender {
+  color: #007bff;
+
+  &.agent {
+    color: #EA6500;
+  }
+}
+
 /* loading mask stuff */
 
 .loader {
@@ -308,4 +316,10 @@ button:active {
 
 .ticket-list-loader.loading .ticket-list {
   display: hidden;
+}
+
+.status-select {
+  width: 100%;
+  height: 2rem;
+
 }
