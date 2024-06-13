@@ -19,6 +19,7 @@ document.getElementById('btnRefreshTickets').addEventListener('click', async () 
 // document.getElementById('btnGetDepartments').addEventListener('click', () => {
 //     getDepartments();
 // });
+// document.getElementById("statusSelector").addEventListener("change", statusSelectorCallback);
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -186,7 +187,6 @@ function viewTicket(ticketId, customerName = "User") {
         .then(response => response.json())
         .then(data => {
             // Display the messages in the divTicketMessages
-            console.log(data);
             document.getElementById('divTicketMessages').innerHTML = data.data.map(message => {
                 if (validateUUID(message.text)) {
                     message.text = `<a href="https://ucarecdn.com/${message.text}/" target="_blank"><img src="https://ucarecdn.com/${message.text}/" alt="Image"></a>`;
