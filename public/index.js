@@ -97,7 +97,7 @@ async function getTicketsForDepartment() {
                                 <div>Last message:</div>
                                 <div class="last-message-timestamp">${new Date(ticket.lastCustomerMessageAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</div>
                             </div>
-                            <div class="last-message-text">${truncateText(ticket.lastMessageText, 50)}</div>
+                            <div class="last-message-text">${ticket.lastMessageText.includes('ucarecdn.com') ? '🖼️ IMAGE SHARED' : truncateText(ticket.lastMessageText, 50)}</div>
                         </div>
                         <div class="ticket-age">
                             <div class="ticket-created-at">Created ${new Date(ticket.createdAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</div>
@@ -188,12 +188,13 @@ function viewTicket(ticketId, customerName = "User") {
             // Display the messages in the divTicketMessages
             console.log(data);
             document.getElementById('divTicketMessages').innerHTML = data.data.map(message => {
-                return `<div class="message">
+                if (validateUUID(message.text)) {
+                    message.text = `<a href="https://ucarecdn.com/${message.text}/" target="_blank"><img src="https://ucarecdn.com/${message.text}/" alt="Image"></a>`;
+                }
+                return `<div class="message ${message.from === 'agent' ? (message?.agent?.name === undefined ? 'system' : 'agent') : 'customer'} ">
+                            <div class="message-sender">${message.from === 'agent' ? (message?.agent?.name === undefined ? "System message" : message?.agent?.name) : customerName}</div>
                             <div class="message-text">${message.text}</div>
-                            <div class="message-info">
-                                <div class="message-sender">${message.from === 'agent' ? (message?.agent?.name === undefined ? "System message" : message?.agent?.name) : customerName}</div>
-                                <div class="message-timestamp">${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}</div>
-                            </div>
+                            <div class="message-timestamp">${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}</div>
                         </div>`;
             }).join('');
         })
@@ -201,4 +202,9 @@ function viewTicket(ticketId, customerName = "User") {
             console.error('Error:', error);
         });
 
+}
+
+function validateUUID(uuid) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return regex.test(uuid);
 }

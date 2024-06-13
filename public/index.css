@@ -232,7 +232,7 @@ button:active {
 .ticket-messages {
   flex: 1;
   background-color: #e6e6e6;
-  padding: 20px;
+  padding: 10px;
   overflow-y: scroll;
   width: calc(100vw - 320px);
   height: 100%;
@@ -241,22 +241,44 @@ button:active {
 .ticket-messages .message {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   border-bottom: 1px solid #cccccc;
-  padding: 10px;
+  padding: 5px 0px;
+  color: #999999;
+  font-size: 12px;
 }
 
-.ticket-messages .message-text {
+.ticket-messages .message.agent .message-sender {
+  color: #ea6500;
+}
+
+.ticket-messages .message.customer .message-sender {
+  color: #007bff;
+}
+.ticket-messages .message.system .message-sender {
+  color: #999999;
+}
+
+.ticket-messages .message .message-sender {
+}
+
+.ticket-messages .message .message-text {
   font-size: 14px;
   font-weight: normal;
   color: #333333;
+  padding: 5px;
 }
 
-.ticket-messages .message-info {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin-top: 5px;
+.ticket-messages .message .message-text img {
+  max-width: 50%;
+  max-height: 300px;
+}
+
+.ticket-messages .message .message-timestamp {
+  font-size: 12px;
+  font-weight: normal;
   color: #999999;
+  text-align: right;
 }
 
 /* loading mask stuff */
