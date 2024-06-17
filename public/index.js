@@ -12,8 +12,10 @@
 //     getTicketsByDepartmentId(142160);
 // });
 
+
+
 document.getElementById('btnRefreshTickets').addEventListener('click', async () => {
-    getTicketsForDepartment();
+    refreshTicketsForDepartment();
 });
 
 // document.getElementById('btnGetDepartments').addEventListener('click', () => {
@@ -22,12 +24,29 @@ document.getElementById('btnRefreshTickets').addEventListener('click', async () 
 // document.getElementById("statusSelector").addEventListener("change", statusSelectorCallback);
 
 document.addEventListener('DOMContentLoaded', init);
+window.activeTicketId = null;
 
 async function init() {
     getAppInfo();
     getTicketsForDepartment();
-    setInterval(getTicketsForDepartment, 300000);
+    setInterval(refreshTicketsForDepartment, 30000);
+    // setInterval(refreshSelectedTicketMessages, 30000);
 }
+
+
+
+
+async function refreshSelectedTicketMessages() {
+    if (window.activeTicketId) {
+        viewTicket(window.activeTicketId);
+    }
+}
+
+async function refreshTicketsForDepartment() {
+    getTicketsForDepartment();
+    refreshSelectedTicketMessages();
+}
+
 
 async function getAppInfo() {
     try {
@@ -84,7 +103,7 @@ async function getTicketsForDepartment() {
             divTicketList.innerHTML = data.data
                 .sort((a, b) => b.lastCustomerMessageAt - a.lastCustomerMessageAt) // Sort tickets by last message time (newest to oldest)
                 .map(ticket => {
-                    return `<div class="ticket-preview" data-ticket-id="${ticket.id}" onclick="viewTicket(${ticket.id},'${ticket.customer?.name}')">
+                    return `<div class="ticket-preview ${window.activeTicketId == ticket.id ? "active":""}" data-ticket-id="${ticket.id}" onclick="viewTicket(${ticket.id},'${ticket.customer?.name}')">
                     <div class="status-color-bar" data-status=${ticket.status}></div>
                     <div class="ticket-info">
                         <div class="ticket-header">
@@ -173,6 +192,9 @@ async function getDepartments() {
 
 
 function viewTicket(ticketId, customerName = "User") {
+
+    // set the active ticket id
+    window.activeTicketId = ticketId;
 
     // remove all other active (hightlighted) ticket classes
     const ticketPreviews = document.getElementsByClassName('ticket-preview');
