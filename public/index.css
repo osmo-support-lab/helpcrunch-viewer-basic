@@ -1,3 +1,8 @@
+:root {
+  --header-height: 150px;
+  --footer-height: 70px;
+}
+
 body {
   margin: 0;
   font-family: "Play", Arial, sans-serif;
@@ -53,7 +58,7 @@ button:active {
   background-color: black;
   /* background-image: linear-gradient(to right, #ea6500, #ffb400); */
   color: #ffffff;
-  max-height: 150px;
+  max-height: var(--header-height);
 }
 
 .top-panel .logo {
@@ -100,6 +105,7 @@ button:active {
   min-width: 320px;
   flex: 1;
   background-color: #f2f2f2;
+  border-right: 2px solid #aaaaaa;
   height: calc(100vh - 150px);
   /* height: 100vh; */
   overflow-y: scroll;
@@ -232,10 +238,10 @@ button:active {
 .ticket-messages {
   flex: 1;
   background-color: #e6e6e6;
-  padding: 10px;
+  /* padding: 10px; */
   overflow-y: scroll;
-  width: calc(100vw - 320px);
-  height: 100%;
+  width: calc(100vw - 322px);
+  height: calc(100vh - (150px + var(--footer-height)));
 }
 
 .ticket-messages .message {
@@ -243,9 +249,13 @@ button:active {
   flex-direction: column;
   justify-content: space-between;
   border-bottom: 1px solid #cccccc;
-  padding: 5px 0px;
+  padding: 5px;
   color: #999999;
   font-size: 12px;
+}
+
+.ticket-messages .message.new-message {
+  background-color: #ffff99; /* Light yellow */
 }
 
 .ticket-messages .message.agent .message-sender {
@@ -285,8 +295,41 @@ button:active {
   color: #007bff;
 
   &.agent {
-    color: #EA6500;
+    color: #ea6500;
   }
+}
+
+/* new message input */
+.message-footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f2f2f2;
+  height: calc(var(--footer-height)-20px);
+}
+
+.message-footer .message-input {
+  flex: 1;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+  resize: none; /* Disables resizing */
+  overflow-y: auto; /* Enables scrolling when text exceeds the height */
+  /* width: 100%; Adjust based on your layout */
+  /* max-height: 150px; Maximum height of the textarea */
+  height: calc(var(--footer-height) - 30px);
+}
+
+.message-footer .message-input:focus {
+  outline: none;
+}
+
+.message-footer .send-button {
+  margin-left: 10px;
+  height: 26px;
+  padding: 5px;
 }
 
 /* loading mask stuff */
@@ -321,5 +364,4 @@ button:active {
 .status-select {
   width: 100%;
   height: 2rem;
-
 }
