@@ -365,3 +365,10 @@ button:active {
   width: 100%;
   height: 2rem;
 }
+
+.logout-link:link,
+.logout-link:visited,
+.logout-link:hover,
+.logout-link:active {
+  color: white;
+}

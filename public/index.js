@@ -11,6 +11,7 @@ window.lastActiveTicketId = null;
  */
 async function init() {
     getAppInfo();
+    getUserInfo();
     getTicketsForDepartment();
     setInterval(refreshTicketsForDepartment, 30000);
 }
@@ -32,12 +33,20 @@ async function refreshSelectedTicketMessages() {
     }
 }
 
+function handleError(error) {
+    if (error.status === 401) {
+        window.location.href = '/login';
+    }
+    return;
+}
+
 /**
  * Fetches and displays app information such as the department name.
  */
 async function getAppInfo() {
     try {
         const response = await fetch('/app-info');
+        handleError(response);
         if (response.ok) {
             const data = await response.json();
             const departmentName = data.departmentName;
@@ -48,6 +57,28 @@ async function getAppInfo() {
         }
     } catch (error) {
         console.error('Error:', error);
+        handleError(error);
+    }
+}
+
+/**
+ * Fetches and displays user information such as the user name.
+ */
+async function getUserInfo() {
+    try {
+        const response = await fetch('/user-info');
+        handleError(response);
+        if (response.ok) {
+            const data = await response.json();
+            const name = data.name;
+            const elementsWithClassName = document.getElementsByClassName('user-name');
+            Array.from(elementsWithClassName).forEach(element => {
+                element.innerHTML = name;
+            });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        handleError(error);
     }
 }
 
@@ -64,8 +95,11 @@ async function loadingMaskFetch(url, options, elementIdToMask) {
     let response;
     try {
         response = await fetch(url, options);
+        handleError(response);
     } catch (error) {
         console.error('Error:', error);
+
+        handleError(error);
     } finally {
         element.classList.remove('loading');
     }
@@ -110,6 +144,7 @@ async function getTicketsForDepartment() {
             divTicketList.textContent = 'Error: ' + response.status;
         }
     } catch (error) {
+        handleError(error);
         divTicketList.textContent = 'Error: ' + error.message;
     }
 }
@@ -260,11 +295,15 @@ async function sendMessage() {
         if (response.ok) {
             viewTicket(window.activeTicketId);
         } else {
+
+            handleError(response);
             console.error('Failed to send message:', response.status);
         }
     } catch (error) {
         console.error('Failed to send message:', error);
         alert('Failed to send message. Please try again.');
+
+        handleError(error);
     }
     finally {
         document.getElementById('inputMessage').value = '';

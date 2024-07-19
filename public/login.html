@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ISG Helpcrunch Tickets Dashboard - Login" />
+    <title>Login - ISG - Helpcrunch Tickets</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="top-panel">
+      <div class="logo"></div>
+      <div class="header-bar">
+        <h1 class="title">Helpcrunch Tickets</h1>
+        <div class="client">Client: <span class="department-name">(...loading)</span></div>
+      </div>
+    </header>
+    <div
+      id="loginPopup"
+      style="
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+      "
+    >
+      <div
+        style="
+          background-color: #fefefe;
+          margin: 15% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 300px;
+        "
+      >
+        <form id="loginForm">
+          <h2>Login</h2>
+          <label for="username">Username:</label><br />
+          <input type="text" id="username" name="username" /><br />
+          <label for="password">Password:</label><br />
+          <input type="password" id="password" name="password" /><br /><br />
+          <input type="submit" value="Login" />
+        </form>
+        <div id="messages"></div>
+      </div>
+    </div>
+
+    <script src="login.js"></script>
+  </body>
+</html>

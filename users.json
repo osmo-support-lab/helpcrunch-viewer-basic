@@ -1,0 +1,19 @@
+{
+  "users": [
+    {
+      "username": "user1",
+      "hashedPassword": "$2a$10$NDWmAo6Zxfw2Xhaiq6AlqOrXvmgyQ9.FMI1aq9gpvkMSWOk28fOqi",
+      "name": "User One"
+    },
+    {
+      "username": "user2",
+      "hashedPassword": "$2a$10$9jFBVLFPPNq.cKqjS0P2w.lmAbudDLspQ5XIDDJtsEZ8HTj7id/OK",
+      "name": "User Two"
+    },
+    {
+      "username": "user3",
+      "hashedPassword": "$2a$10$Gzh5hJZfG2Kyqahl3ckTeuwxJJOh12tt/Jsr1ukw8e40vZ5QH084W",
+      "name": "User Three"
+    }
+  ]
+}

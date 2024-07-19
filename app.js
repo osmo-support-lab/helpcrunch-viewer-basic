@@ -1,35 +1,141 @@
+require('dotenv').config();
 const express = require('express');
-const dotenv = require('dotenv');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
 const fetch = require('node-fetch');
+const path = require('path');
 
-// Load environment variables from.env file
-dotenv.config();
+// Constants
+const USERS = require('./users.json').users;
+const SECRET = process.env.SECRET;
+const SESSION_AGE = process.env.SESSION_AGE;
+const PORT = process.env.PORT;
 
-// Create an Express application
 const app = express();
 
-// Middleware to parse JSON bodies
+app.use(session({
+    secret: SECRET,
+    cookie: { maxAge: Number(SESSION_AGE) },
+    resave: false,
+    saveUninitialized: true,
+}));
+
 app.use(express.json());
 
-// Serve static files from the public directory
-app.use(express.static('public'));
+// Middleware to check if the user is logged in
+const isLoggedInJSON = (req, res, next) => {
+    console.log("isLoggedInJSON");
+    console.log(req.session);
+    if (!req.session.loggedin) {
+        return res.status(401).json({ success: false, message: 'Please log in.' });
+    }
+    next();
+};
 
-/**
- * Serve the home page.
- */
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html');
+const isLoggedInReq = (req, res, next) => {
+    console.log("isLoggedInReq");
+    if (!req.session.loggedin) {
+        return res.redirect('/login'); // Redirect to login page instead of returning JSON
+    }
+    next();
+};
+
+app.get('/', isLoggedInReq, (req, res) => {
+    res.redirect('/index');
 });
 
-/**
- * Fetch and return tickets for a specific department.
- * @param {string} departmentId - The ID of the department to filter tickets by.
- * @returns Tickets filtered by the specified department ID.
- */
-app.get('/tickets', async (req, res) => {
-    const departmentId = req.query.departmentId;
-    const url = `https://api.helpcrunch.com/v1/chats/search`;
+app.get('/index', isLoggedInReq, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/index.html', isLoggedInReq, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+function handleLoginAttempt(req) {
+    console.log("handleLoginAttempt");
+    req.session.firstAttempt = req.session.firstAttempt || Date.now();
+    req.session.latestAttempt = Date.now();
+    req.session.attempts = req.session.attempts ? req.session.attempts + 1 : 1;
+
+    // Check if 1 minute has passed since the first attempt, if so, reset the attempts
+    if (req.session.attempts >= 5) {
+        if (req.session.latestAttempt - req.session.firstAttempt < 60000) {
+            req.session.blocked = true;
+        } else {
+            req.session.firstAttempt = Date.now();
+            req.session.attempts = 1;
+            req.session.blocked = false;
+        }
+        return;
+    }
+};
+
+app.post('/do-login', async (req, res) => {
     try {
+
+        handleLoginAttempt(req);
+
+        if (req.session.blocked) {
+            // return html error code 429, signifying too many requests
+            return res.status(429).json({ success: false, message: 'Too many login attempts. Please try again later.' });
+        }
+
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            // return html error code 400, signifying a bad request
+            return res.status(400).json({ success: false, message: 'Username and password are required.' });
+        }
+
+        let user = USERS.find(u => u.username === username);
+
+        if (!user) {
+            // return html error code 401, signifying unauthorized access
+            return res.status(401).json({ success: false, message: 'User not found or incorrect password' });
+        }
+
+        const match = await bcrypt.compare(password, user.hashedPassword);
+
+        if (!match) {
+            // return html error code 401, signifying unauthorized access
+            return res.status(401).json({ success: false, message: 'User not found or incorrect password' });
+        }
+
+        req.session.user = { username: user.username, name: user.name };
+        req.session.loggedin = true;
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Login failed:', error);
+        res.status(500).json({ success: false, message: 'An error occurred during login.' });
+    }
+});
+
+
+// endpoint to get user session info
+app.get('/user-info', isLoggedInJSON, (req, res) => {
+    res.json(req.session.user);
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/login.html');
+    });
+});
+
+
+app.get('/tickets', isLoggedInJSON, async (req, res) => {
+    try {
+        const departmentId = req.query.departmentId;
+        const url = `https://api.helpcrunch.com/v1/chats/search`;
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${process.env.HC_API_KEY}` },
@@ -49,21 +155,13 @@ app.get('/tickets', async (req, res) => {
     }
 });
 
-/**
- * Return information about the application.
- * @returns Application information including the department name.
- */
 app.get('/app-info', async (req, res) => {
     res.json({ departmentName: process.env.DEPARTMENT_NAME });
 });
 
-/**
- * Fetch and return tickets for the department specified in the environment variable.
- * @returns Tickets filtered by the department ID from the environment variable.
- */
-app.get('/department-tickets', async (req, res) => {
-    const url = `https://api.helpcrunch.com/v1/chats/search`;
+app.get('/department-tickets', isLoggedInJSON, async (req, res) => {
     try {
+        const url = `https://api.helpcrunch.com/v1/chats/search`;
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${process.env.HC_API_KEY}` },
@@ -83,14 +181,9 @@ app.get('/department-tickets', async (req, res) => {
     }
 });
 
-/**
- * Fetch and return a single ticket by its ID.
- * @param {string} id - The ID of the ticket to retrieve.
- * @returns The requested ticket.
- */
-app.get('/ticket/:id', async (req, res) => {
-    const url = `https://api.helpcrunch.com/v1/chats/${req.params.id}`;
+app.get('/ticket/:id', isLoggedInJSON, async (req, res) => {
     try {
+        const url = `https://api.helpcrunch.com/v1/chats/${req.params.id}`;
         const response = await fetch(url, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${process.env.HC_API_KEY}` }
@@ -103,15 +196,10 @@ app.get('/ticket/:id', async (req, res) => {
     }
 });
 
-/**
- * Fetch and return all messages for a specific chat.
- * @param {string} id - The ID of the chat to retrieve messages for.
- * @returns Messages for the specified chat.
- */
-app.get('/chats/:id/messages', async (req, res) => {
-    const chatId = req.params.id;
-    const url = `https://api.helpcrunch.com/v1/chats/${chatId}/messages`;
+app.get('/chats/:id/messages', isLoggedInJSON, async (req, res) => {
     try {
+        const chatId = req.params.id;
+        const url = `https://api.helpcrunch.com/v1/chats/${chatId}/messages`;
         const response = await fetch(url, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${process.env.HC_API_KEY}` }
@@ -124,33 +212,20 @@ app.get('/chats/:id/messages', async (req, res) => {
     }
 });
 
-/**
- * Send a message to the active ticket.
- * @param {string} message - The message to send.
- * @returns The response from the API.
- */
-app.post('/chats/:id/sendMessage', async (req, res) => {
+app.post('/chats/:id/sendMessage', isLoggedInJSON, async (req, res) => {
     const chatId = req.params.id;
-
-    // todo: check the HC api for the correct endpoint implementation info
-
-
-    const url = `https://api.helpcrunch.com/v1/messages`;
-
-    // get message from request body
     const messageText = req.body.text;
 
     try {
+        const url = `https://api.helpcrunch.com/v1/messages`;
         const response = await fetch(url, {
             method: 'POST',
             headers: {
-                // 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${process.env.HC_API_KEY}`
             },
             body: JSON.stringify({
                 text: messageText,
                 chat: chatId,
-                // "markdownText": "Can you can a **can** as a canner can can a **can**",
                 agent: process.env.HC_AGENT_ID,
                 type: "message"
             })
@@ -163,13 +238,9 @@ app.post('/chats/:id/sendMessage', async (req, res) => {
     }
 });
 
-/**
- * Fetch and return all departments.
- * @returns List of all departments.
- */
-app.get('/departments', async (req, res) => {
-    const url = `https://api.helpcrunch.com/v1/departments`;
+app.get('/departments', isLoggedInJSON, async (req, res) => {
     try {
+        const url = `https://api.helpcrunch.com/v1/departments`;
         const response = await fetch(url, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${process.env.HC_API_KEY}` }
@@ -182,8 +253,6 @@ app.get('/departments', async (req, res) => {
     }
 });
 
-// Start the server
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
