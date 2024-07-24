@@ -25,7 +25,6 @@ app.use(express.json());
 // Middleware to check if the user is logged in
 const isLoggedInJSON = (req, res, next) => {
     console.log("isLoggedInJSON");
-    console.log(req.session);
     if (!req.session.loggedin) {
         return res.status(401).json({ success: false, message: 'Please log in.' });
     }
