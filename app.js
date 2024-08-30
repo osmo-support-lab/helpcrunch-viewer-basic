@@ -213,7 +213,12 @@ app.get('/chats/:id/messages', isLoggedInJSON, async (req, res) => {
 
 app.post('/chats/:id/sendMessage', isLoggedInJSON, async (req, res) => {
     const chatId = req.params.id;
-    const messageText = req.body.text;
+    let messageText = req.body.text;
+    const messageSenderName = req.session.user.name;
+
+    messageText = `${messageText}
+    
+~ ${messageSenderName}`;
 
     try {
         const url = `https://api.helpcrunch.com/v1/messages`;

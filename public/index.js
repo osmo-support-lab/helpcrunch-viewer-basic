@@ -225,7 +225,11 @@ function viewTicket(ticketId, customerName = "User") {
                 return `<div class="${messageClass}" data-message-id="${message.id}">
                             <div class="message-sender">${message.from === 'agent' ? (message.agent?.name === undefined ? "System message" : message.agent.name) : customerName}</div>
                             <div class="message-text">${message.text}</div>
-                            <div class="message-timestamp">${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}</div>
+                            <div class="message-timestamp">
+                                ${message.updatedAt !== null 
+                                    ? `Edited: ${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}`
+                                    : new Date(message.createdAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}
+                            </div>
                         </div>`;
             }).join('');
 
