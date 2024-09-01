@@ -1,5 +1,7 @@
 .env
 
+widget.html
+
 # Logs
 logs
 *.log

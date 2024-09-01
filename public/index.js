@@ -123,7 +123,7 @@ async function getTicketsForDepartment() {
                     <div class="ticket-info">
                         <div class="ticket-header">
                             <div class="ticket-id">#${ticket.id}</div>
-                            <div class="ticket-assignee">Assignee: ${ticket.assignee?.name}</div>
+                            <div class="ticket-assignee">Assignee: ${ticket.assignee?.name ? ticket.assignee.name : "HelpBot"}</div>
                         </div>                        
                         <div class="ticket-customer">${ticket.customer?.name}</div>
                         <div class="last-message-preview">
