@@ -10,11 +10,11 @@ window.lastActiveTicketId = null;
  * Fetches app info, gets tickets for the department, and sets up intervals for refreshing tickets.
  */
 async function init() {
-    const chatId = new URLSearchParams(window.location.search).get('chat_id');
+    const chatToOpen = new URLSearchParams(window.location.search).get('chat_id');
 
     getAppInfo();
     getUserInfo();
-    getTicketsForDepartment({ chatToOpen: chatId });
+    getTicketsForDepartment(chatToOpen);
     setInterval(refreshTicketsForDepartment, 30000);
 }
 
@@ -111,12 +111,16 @@ async function loadingMaskFetch(url, options, elementIdToMask) {
 /**
  * Fetches and displays tickets for the department.
  */
-async function getTicketsForDepartment({ chatToOpen }) {
+async function getTicketsForDepartment(chatToOpen = undefined) {
     try {
         const divTicketList = document.getElementById('divTicketList');
         const response = await loadingMaskFetch(`/department-tickets`, {}, 'ticket-list-loader');
         if (response.ok) {
             const data = await response.json();
+            if (data.data.length === 0) {
+                divTicketList.innerHTML = '<div class="no-tickets">No tickets</div>';
+                return;
+            }
             divTicketList.innerHTML = data.data
                 .sort((a, b) => b.lastCustomerMessageAt - a.lastCustomerMessageAt)
                 .map(ticket => {
@@ -146,9 +150,11 @@ async function getTicketsForDepartment({ chatToOpen }) {
                 viewTicket(chatToOpen);
             }
         } else {
+            console.error('HERE Error:', error);
             divTicketList.textContent = 'Error: ' + response.status;
         }
     } catch (error) {
+        console.error('HERE Error 2:', error);
         handleError(error);
         divTicketList.textContent = 'Error: ' + error.message;
     }
@@ -213,6 +219,10 @@ function viewTicket(ticketId, customerName = "User") {
         .then(response => response.json())
         .then(data => {
             const divTicketMessages = document.getElementById('divTicketMessages');
+            if (!data.data === 0) {
+                divTicketMessages.innerHTML = '<div class="no-messages">No messages yet</div>';
+                return;
+            }
             const messagesHTML = data.data.reverse().map(message => {
                 let isNewMessage = false;
                 // Highlight new messages only if the ticketId has not changed
