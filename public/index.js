@@ -10,9 +10,11 @@ window.lastActiveTicketId = null;
  * Fetches app info, gets tickets for the department, and sets up intervals for refreshing tickets.
  */
 async function init() {
+    const chatId = new URLSearchParams(window.location.search).get('chat_id');
+
     getAppInfo();
     getUserInfo();
-    getTicketsForDepartment();
+    getTicketsForDepartment({ chatToOpen: chatId });
     setInterval(refreshTicketsForDepartment, 30000);
 }
 
@@ -109,7 +111,7 @@ async function loadingMaskFetch(url, options, elementIdToMask) {
 /**
  * Fetches and displays tickets for the department.
  */
-async function getTicketsForDepartment() {
+async function getTicketsForDepartment({ chatToOpen }) {
     try {
         const divTicketList = document.getElementById('divTicketList');
         const response = await loadingMaskFetch(`/department-tickets`, {}, 'ticket-list-loader');
@@ -140,6 +142,9 @@ async function getTicketsForDepartment() {
                     </div>
                 </div>`;
                 }).join('');
+            if (chatToOpen) {
+                viewTicket(chatToOpen);
+            }
         } else {
             divTicketList.textContent = 'Error: ' + response.status;
         }
@@ -226,9 +231,9 @@ function viewTicket(ticketId, customerName = "User") {
                             <div class="message-sender">${message.from === 'agent' ? (message.agent?.name === undefined ? "System message" : message.agent.name) : customerName}</div>
                             <div class="message-text">${message.text}</div>
                             <div class="message-timestamp">
-                                ${message.updatedAt !== null 
-                                    ? `Edited: ${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}`
-                                    : new Date(message.createdAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}
+                                ${message.updatedAt !== null
+                        ? `Edited: ${new Date(message.updatedAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}`
+                        : new Date(message.createdAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })}
                             </div>
                         </div>`;
             }).join('');
