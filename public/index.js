@@ -15,7 +15,7 @@ async function init() {
     getAppInfo();
     getUserInfo();
     getTicketsForDepartment(chatToOpen);
-    setInterval(refreshTicketsForDepartment, 30000);
+    setInterval(refreshTicketsForDepartment, 60000);
 }
 
 /**
@@ -117,6 +117,10 @@ async function getTicketsForDepartment(chatToOpen = undefined) {
         const response = await loadingMaskFetch(`/department-tickets`, {}, 'ticket-list-loader');
         if (response.ok) {
             const data = await response.json();
+            if(data.errors && data.errors.length > 0) {
+                divTicketList.innerHTML = `<div class="no-tickets">${data.errors[0].message}</div>`;
+                return;
+            }
             if (data.data.length === 0) {
                 divTicketList.innerHTML = '<div class="no-tickets">No tickets</div>';
                 return;
@@ -219,6 +223,11 @@ function viewTicket(ticketId, customerName = "User") {
         .then(response => response.json())
         .then(data => {
             const divTicketMessages = document.getElementById('divTicketMessages');
+            
+            if(data.errors && data.errors.length > 0) {
+                divTicketMessages.innerHTML = `<div class="no-tickets">${data.errors[0].message}</div>`;
+                return;
+            }
             if (!data.data === 0) {
                 divTicketMessages.innerHTML = '<div class="no-messages">No messages yet</div>';
                 return;
