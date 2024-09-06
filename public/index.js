@@ -117,7 +117,7 @@ async function getTicketsForDepartment(chatToOpen = undefined) {
         const response = await loadingMaskFetch(`/department-tickets`, {}, 'ticket-list-loader');
         if (response.ok) {
             const data = await response.json();
-            if(data.errors && data.errors.length > 0) {
+            if (data.errors && data.errors.length > 0) {
                 divTicketList.innerHTML = `<div class="no-tickets">${data.errors[0].message}</div>`;
                 return;
             }
@@ -126,6 +126,7 @@ async function getTicketsForDepartment(chatToOpen = undefined) {
                 return;
             }
             divTicketList.innerHTML = data.data
+                .filter(ticket => ticket.lastMessageText !== null)
                 .sort((a, b) => b.lastCustomerMessageAt - a.lastCustomerMessageAt)
                 .map(ticket => {
                     return `<div class="ticket-preview ${window.activeTicketId == ticket.id ? "active" : ""}" data-ticket-id="${ticket.id}" onclick="viewTicket(${ticket.id},'${ticket.customer?.name}')">
@@ -135,13 +136,22 @@ async function getTicketsForDepartment(chatToOpen = undefined) {
                             <div class="ticket-id">#${ticket.id}</div>
                             <div class="ticket-assignee">Assignee: ${ticket.assignee?.name ? ticket.assignee.name : "HelpBot"}</div>
                         </div>                        
-                        <div class="ticket-customer">${ticket.customer?.name}</div>
+                        <div class="ticket-customer">${ticket.customer?.name ? ticket.customer.name : "Customer ID: "+ticket.customer.id}</div>
                         <div class="last-message-preview">
                             <div class="last-message-info">
                                 <div>Last message:</div>
-                                <div class="last-message-timestamp">${new Date(ticket.lastCustomerMessageAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</div>
+                                <div class="last-message-timestamp">${new Date((ticket.lastCustomerMessageAt || ticket.createdAt) * 1000).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric'
+                    })}</div>
                             </div>
-                            <div class="last-message-text">${ticket.lastMessageText.includes('ucarecdn.com') ? '🖼️ IMAGE SHARED' : truncateText(ticket.lastMessageText, 50)}</div>
+                            <div class="last-message-text">${ticket.lastMessageText
+                            ? ticket.lastMessageText.includes('ucarecdn.com')
+                                ? '🖼️ IMAGE SHARED'
+                                : truncateText(ticket.lastMessageText, 50)
+                            : 'No message'}</div>
                         </div>
                         <div class="ticket-age">
                             <div class="ticket-created-at">Created ${new Date(ticket.createdAt * 1000).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' })}</div>
@@ -223,8 +233,8 @@ function viewTicket(ticketId, customerName = "User") {
         .then(response => response.json())
         .then(data => {
             const divTicketMessages = document.getElementById('divTicketMessages');
-            
-            if(data.errors && data.errors.length > 0) {
+
+            if (data.errors && data.errors.length > 0) {
                 divTicketMessages.innerHTML = `<div class="no-tickets">${data.errors[0].message}</div>`;
                 return;
             }
