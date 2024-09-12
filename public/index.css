@@ -258,6 +258,10 @@ button:active {
   background-color: #ffff99; /* Light yellow */
 }
 
+.ticket-messages .message.private {
+  background-color: #ffff99; /* Light yellow */
+}
+
 .ticket-messages .message.agent .message-sender {
   color: #ea6500;
 }
@@ -331,6 +335,20 @@ button:active {
   margin-left: 10px;
   height: 26px;
   padding: 5px;
+}
+
+.message-footer .send-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.message-footer .send-msg-button {
+  background-color: #0056b3;
+}
+
+.message-footer .send-note-button {
+  background-color: #28a745;
 }
 
 /* loading mask stuff */

@@ -1,6 +1,11 @@
 {
   "users": [
     {
+      "username": "felix",
+      "hashedPassword": "$2a$10$7KFUJDitNcDS8hGzVHUPs.qGhxxFxOdmyWT6/X0oMFBBQK9Ef7GdO",
+      "name": "Felix"
+    },
+    {
       "username": "leonfish",
       "hashedPassword": "$2a$10$TSZjeYB4hMn9vFfPSgz4fOV2T5vcjiBvQHDBJ5uU5EhK/TCqhB2ha",
       "name": "Leonfish"

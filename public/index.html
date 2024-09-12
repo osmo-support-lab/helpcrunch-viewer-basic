@@ -40,10 +40,13 @@
           <textarea
             type="text"
             class="message-input"
-            placeholder="Type your message... (CTRL + Enter to send)"
+            placeholder="Type your message... (CTRL + Enter to send - Note: This will create a private note and NOT a public message)"
             id="inputMessage"
           ></textarea>
-          <button class="send-button" id="btnSend">Send</button>
+          <div class="send-wrapper">
+            <button class="send-button send-note-button" id="btnPrivateSend">Create Note</button>
+            <button class="send-button send-msg-button" id="btnSend">Send</button>
+          </div>
         </footer>
       </section>
     </main>

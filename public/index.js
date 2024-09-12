@@ -255,7 +255,7 @@ function viewTicket(ticketId, customerName = "User") {
                     if (validateUUID(message.text)) {
                         message.text = `<a href="https://ucarecdn.com/${message.text}/" target="_blank"><img src="https://ucarecdn.com/${message.text}/" alt="Image"></a>`;
                     }
-                let messageClass = `message ${message.from === 'agent' ? (message.agent?.name === undefined ? 'system' : 'agent') : 'customer'} ${isNewMessage ? 'new-message' : ''}`;
+                let messageClass = `message ${message.from === 'agent' ? (message.agent?.name === undefined ? 'system' : 'agent') : 'customer'} ${message.type === "private" ? 'private' : ''} ${isNewMessage ? 'new-message' : ''}`;
                 return `<div class="${messageClass}" data-message-id="${message.id}">
                             <div class="message-sender">${message.from === 'agent' ? (message.agent?.name === undefined ? "System message" : message.agent.name) : customerName}</div>
                             <div class="message-text">${message.text}</div>
@@ -317,7 +317,7 @@ document.getElementById('inputMessage').addEventListener('resize', function () {
  * Sends a message to the selected ticket.
  */
 
-async function sendMessage() {
+async function sendMessage(isPrivate) {
     const message = document.getElementById('inputMessage').value;
     if (!window.activeTicketId || !message || message.trim() === '') {
         return;
@@ -328,7 +328,7 @@ async function sendMessage() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ text: message })
+            body: JSON.stringify({ text: message, isPrivate })
         });
         if (response.ok) {
             viewTicket(window.activeTicketId);
@@ -352,12 +352,13 @@ async function sendMessage() {
 // listener to send message on CTRL+Enter key press:
 document.getElementById('inputMessage').addEventListener('keydown', function (event) {
     if (event.ctrlKey && event.key === 'Enter') {
-        sendMessage();
+        sendMessage(true).then(r => null);
     }
 });
 
 // listener to send message on click of send button:
-document.getElementById('btnSend').addEventListener('click', sendMessage);
+document.getElementById('btnSend').addEventListener('click', () => {sendMessage(false).then(r => null)});
+document.getElementById('btnPrivateSend').addEventListener('click', () => {sendMessage(true).then(r => null)});
 
 // refresh button
 document.getElementById('btnRefreshTickets').addEventListener('click', refreshTicketsForDepartment);

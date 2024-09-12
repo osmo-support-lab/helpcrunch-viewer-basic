@@ -214,6 +214,7 @@ app.get('/chats/:id/messages', isLoggedInJSON, async (req, res) => {
 app.post('/chats/:id/sendMessage', isLoggedInJSON, async (req, res) => {
     const chatId = req.params.id;
     let messageText = req.body.text;
+    let isPrivate = !!req.body.isPrivate;
     const messageSenderName = req.session.user.name;
 
     messageText = `${messageText}
@@ -231,10 +232,11 @@ app.post('/chats/:id/sendMessage', isLoggedInJSON, async (req, res) => {
                 text: messageText,
                 chat: chatId,
                 agent: process.env.HC_AGENT_ID,
-                type: "message"
+                type: isPrivate ? "private" : "message"
             })
         });
         const data = await response.json();
+        console.log(data)
         res.json(data);
     } catch (error) {
         console.error('Failed to send message:', error);
